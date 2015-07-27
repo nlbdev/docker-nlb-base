@@ -1,0 +1,6 @@
+#!/bin/sh
+
+DIR="$HOME/xmlcalabash"
+JAR="`ls "$DIR" | grep jar$ | head -n 1`"
+
+java -Xms4096m -Xmx4096m -XX:-UseGCOverheadLimit -jar "$DIR/$JAR" "$@"
