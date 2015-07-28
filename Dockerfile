@@ -12,8 +12,8 @@ RUN add-apt-repository -y ppa:cwchien/gradle
 RUN locale-gen en_US en_US.UTF-8
 RUN apt-get update && apt-get install -y wget unzip
 RUN apt-get update && apt-get install -y openjdk-8-jdk
-RUN apt-get update && apt-get install -y maven gradle
-RUN apt-get update && apt-get install -y mp3splt
+RUN apt-get update && apt-get install -y maven gradle mp3splt python3-pip
+RUN pip3 install mutagen
 
 # Install Calabash (XProc engine)
 RUN wget https://github.com/ndw/xmlcalabash1/releases/download/1.1.4-95/xmlcalabash-1.1.4-95.zip -O calabash.zip \
@@ -33,4 +33,4 @@ ENV PATH $PATH:/root/saxon
 # Copy XML Catalog
 COPY resources/xmlcatalog xmlcatalog
 
-CMD echo "Docker image for NLB"
+CMD if [ -e /tmp/script/run.sh ]; then /tmp/script/run.sh ; else echo "Script missing: /tmp/script/run.sh" ; fi
