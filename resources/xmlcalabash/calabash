@@ -3,4 +3,5 @@
 DIR="$HOME/xmlcalabash"
 JAR="`ls "$DIR" | grep jar$ | head -n 1`"
 
-java -Xms4096m -Xmx4096m -XX:-UseGCOverheadLimit -jar "$DIR/$JAR" "$@"
+cd "$HOME/xmlcatalog" # Set current directory so that the global catalog.xml is found
+java -Xms4096m -Xmx4096m -XX:-UseGCOverheadLimit -cp "$DIR/$JAR:$DIR/lib/*" com.xmlcalabash.drivers.Main "$@"

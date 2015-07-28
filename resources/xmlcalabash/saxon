@@ -1,6 +1,0 @@
-#!/bin/sh
-
-DIR="$HOME/xmlcalabash"
-JAR="`cd $DIR && find | grep -i saxon | grep jar$ | head -n 1`"
-
-java -jar "$DIR/$JAR" "$@"

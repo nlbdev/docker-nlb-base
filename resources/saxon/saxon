@@ -1,0 +1,5 @@
+#!/bin/sh
+
+DIR="$HOME/saxon"
+
+java -cp "$DIR/lib/*" net.sf.saxon.Transform -catalog:$HOME/xmlcatalog/catalog.xml "$@"

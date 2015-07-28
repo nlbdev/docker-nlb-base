@@ -15,15 +15,22 @@ RUN apt-get update && apt-get install -y openjdk-8-jdk
 RUN apt-get update && apt-get install -y maven gradle
 RUN apt-get update && apt-get install -y mp3splt
 
-# Install Calabash (XProc engine) and Saxon (XSLT engine)
+# Install Calabash (XProc engine)
 RUN wget https://github.com/ndw/xmlcalabash1/releases/download/1.1.4-95/xmlcalabash-1.1.4-95.zip -O calabash.zip \
     && unzip calabash.zip \
     && mv xmlcalabash-* xmlcalabash
 COPY resources/xmlcalabash/calabash xmlcalabash/calabash
-COPY resources/xmlcalabash/saxon xmlcalabash/saxon
 ENV PATH $PATH:/root/xmlcalabash
+
+# Install Saxon (XSLT engine)
+RUN mkdir -p saxon/lib \
+    && cd saxon/lib \
+    && wget http://central.maven.org/maven2/net/sf/saxon/Saxon-HE/9.5.1-8/Saxon-HE-9.5.1-8.jar \
+    && wget http://central.maven.org/maven2/xml-resolver/xml-resolver/1.2/xml-resolver-1.2.jar
+COPY resources/saxon/saxon saxon/saxon
+ENV PATH $PATH:/root/saxon
 
 # Copy XML Catalog
 COPY resources/xmlcatalog xmlcatalog
 
-CMD mp3splt
+CMD echo "Docker image for NLB"
