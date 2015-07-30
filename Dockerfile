@@ -19,7 +19,7 @@ ENV LC_ALL C.UTF-8
 # Install dependencies
 RUN apt-get update && apt-get install -y wget unzip
 RUN apt-get update && apt-get install -y openjdk-8-jdk
-RUN apt-get update && apt-get install -y maven gradle mp3splt python3-pip
+RUN apt-get update && apt-get install -y maven gradle mp3splt python3-pip python3-yaml
 RUN pip3 install mutagen slacker
 
 # Install Calabash (XProc engine)
