@@ -19,7 +19,7 @@ ENV LC_ALL C.UTF-8
 # Install dependencies
 RUN apt-get update && apt-get install -y wget unzip
 RUN apt-get update && apt-get install -y openjdk-7-jdk openjdk-8-jdk
-RUN apt-get update && apt-get install -y maven gradle mp3splt python3-pip python3-yaml git subversion mercurial bzr ansible curl vim
+RUN apt-get update && apt-get install -y maven gradle mp3splt python3-pip python3-yaml git subversion mercurial bzr ansible curl vim lame sox mp3info
 RUN pip3 install mutagen slacker
 ENV JAVA_7_HOME /usr/lib/jvm/java-7-openjdk-amd64
 ENV JAVA_8_HOME /usr/lib/jvm/java-8-openjdk-amd64
