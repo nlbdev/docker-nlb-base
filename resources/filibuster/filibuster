@@ -1,0 +1,16 @@
+#!/bin/bash
+
+cd /opt/filibuster-brage
+
+# Making sure that Recs/ contains audio
+if [ "`find Recs/ -type f | grep "wav$" | head -n 1 | wc -l`" = "0" ]; then
+    if [ -d "/mnt/filibuster-recs" ]; then
+        rm Recs -r && ln --symbolic /mnt/filibuster-recs Recs
+    else
+        echo "No audio recordings mounted on /mnt/filibuster-recs"
+        ./get-recs.sh
+    fi
+fi
+
+# Running filibuster
+USER=user ./filibuster.tcl "$@"
