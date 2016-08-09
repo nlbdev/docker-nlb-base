@@ -1,7 +1,7 @@
 #!/bin/sh
 
-DIR="$HOME/xmlcalabash"
+DIR="/etc/opt/xmlcalabash"
 JAR="`ls "$DIR" | grep jar$ | head -n 1`"
 
-cd "$HOME/xmlcatalog" # Set current directory so that the global catalog.xml is found
+cd "/etc/opt/xmlcatalog" # Set current directory so that the global catalog.xml is found
 java -Xms4096m -Xmx4096m -XX:-UseGCOverheadLimit -cp "$DIR/$JAR:$DIR/lib/*" com.xmlcalabash.drivers.Main "$@"

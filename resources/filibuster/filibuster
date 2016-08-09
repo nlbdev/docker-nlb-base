@@ -13,4 +13,4 @@ if [ "`find Recs/ -type f | grep "wav$" | head -n 1 | wc -l`" = "0" ]; then
 fi
 
 # Running filibuster
-USER=user ./filibuster.tcl "$@"
+echo "$@" | USER=user tclsh narraFil2.tcl no > /tmp/out.wav

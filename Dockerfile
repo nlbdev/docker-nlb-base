@@ -43,53 +43,6 @@ RUN export uid=${user_uid} gid=${user_gid} && \
     chmod 0440 /etc/sudoers.d/${user_name} && \
     chown ${user_uid}:${user_gid} -R /home/${user_name}
 
-
-# Install Filibuster (Brage) with dependencies
-
-## Install dependencies
-RUN apt-get update && apt-get install -y tcl8.6 tk8.6 tcllib tk-tile tcl-snack wavesurfer libsnack2-alsa mplayer pulseaudio alsa
-RUN ln --symbolic /usr/bin/tclsh8.6 /usr/bin/tclsh8.4 # tclsh8.4 is hardcoded in filibuster
-RUN usermod -a -G audio user
-
-# These do not seem to be needed for audio after all:
-#VOLUME /tmp/.X11-unix:/tmp/.X11-unix
-#VOLUME /dev/shm:/dev/shm
-#VOLUME /etc/machine-id:/etc/machine-id
-#VOLUME /run/user/$uid/pulse:/run/user/$uid/pulse
-#VOLUME /var/lib/dbus:/var/lib/dbus
-#VOLUME ~/.pulse:/home/user/.pulse
-
-## Download Filibuster
-RUN git clone https://gitlab.com/nlbdev/filibuster-brage.git
-RUN cd filibuster-brage && git fetch -a && git checkout develop
-
-## Make changes to Filibuster so that it runs properly
-RUN cp filibuster-brage/mari_config.tcl filibuster-brage/user_config.tcl
-RUN cp filibuster-brage/Preproc/mari_config.pl filibuster-brage/Preproc/user_config.pl
-RUN mv filibuster-brage/Preproc/lang/nob/Tagger/NLBtag filibuster-brage/Preproc/lang/nob/Tagger/NLBTag
-RUN find filibuster-brage -type f | grep -v " " | grep "\.\(tcl\|pl\)$" | xargs sed -i 's/Recs\/nob\/Brage\/n/def_mfc\/n/'
-RUN find filibuster-brage -type f | grep -v " " | grep "\.\(tcl\|pl\)$" | xargs sed -i 's/n151007/n160614/g'
-RUN find filibuster-brage -type f | grep -v " " | grep "\.\(tcl\|pl\)$" | xargs sed -i 's/[A-Za-z]:\/.*filibuster[^\/]*\//\/opt\/filibuster-brage\//g'
-RUN find filibuster-brage -type f | grep -v " " | grep "\.\(tcl\|pl\)$" | xargs sed -i 's/Tagger\/NLBtag/Tagger\/NLBTag/g'
-RUN find filibuster-brage -type f | grep -v " " | grep "\.tcl$" | xargs sed -i 's/package require -exact/package require/g' # dont require exact package versions
-RUN sed -i 's/#set auto_path "C:\/wavesurfer\/src \$auto_path"/lappend auto_path \/usr\/share\/tcltk\/wavesurfer\//' filibuster-brage/filibuster.tcl
-RUN mkdir -p filibuster-brage/Preproc/lang/nob/DB
-RUN chmod +x filibuster-brage/filibuster.tcl
-
-## Build lexicons
-RUN cd filibuster-brage/Preproc \
-    && sed -i 's/reload_lexica.*/reload_lexica = "1";/' user_config.pl \
-    && USER=user perl nob_preproc.pl \
-    && sed -i 's/reload_lexica.*/reload_lexica = "0";/' user_config.pl
-
-## Set ownership to user
-RUN chown -R ${user_name}:${user_name} filibuster-brage
-RUN chmod 777 filibuster-brage
-
-## Install as easy-to-use command invokable from anywhere
-COPY resources/filibuster/filibuster filibuster-brage/filibuster
-ENV PATH $PATH:/opt/filibuster-brage/
-
 # Install golang
 RUN wget "https://storage.googleapis.com/golang/go1.4.2.linux-amd64.tar.gz" \
     && tar -xvvf go*.tar.gz \
@@ -105,8 +58,8 @@ RUN cd daisymfc-code/dmfc/ \
     && ant -f build-core.xml buildReleaseZip \
     && cd dist \
     && unzip pipeline-*.zip \
-    && mv pipeline-*/ ../daisymfc \
-    && cd .. \
+    && mv pipeline-*/ ../../../daisymfc \
+    && cd ../../.. \
     && rm daisymfc-code -r
 ENV PATH $PATH:/opt/daisymfc
 
@@ -127,8 +80,8 @@ COPY resources/saxon/saxon saxon/saxon
 ENV PATH $PATH:/opt/saxon
 
 # Copy XML Catalog to users home directory
-COPY resources/xmlcatalog /home/${user_name}/xmlcatalog
-RUN chown 
+COPY resources/xmlcatalog /etc/opt/xmlcatalog
+RUN chown -R user:user /etc/opt/xmlcatalog
 
 # Install DAISY Pipeline 2 (Engine + Web UI)
 # - Web UI not used, so stopping it's daemon.
@@ -156,6 +109,53 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg -i assembly*cli*deb \
     && echo 'while [[ 1 ]] ; do JAVA_HOME=$JAVA_7_HOME /opt/daisy-pipeline2-cli/dp2 help 2>&1 >/dev/null ; if [[ "$?" -eq "0" ]] ; then break ; fi ; done' >> /usr/local/bin/dp2 \
     && echo 'JAVA_HOME=$JAVA_7_HOME /opt/daisy-pipeline2-cli/dp2 "$@"' >> /usr/local/bin/dp2 \
     && chmod +x /usr/local/bin/dp2
+
+# Install Filibuster (Brage) with dependencies
+
+## Install dependencies
+RUN apt-get update && apt-get install -y tcl8.6 tk8.6 tcllib tk-tile tcl-snack wavesurfer libsnack2-alsa mplayer pulseaudio alsa
+RUN ln --symbolic /usr/bin/tclsh8.6 /usr/bin/tclsh8.4 # tclsh8.4 is hardcoded in filibuster
+RUN usermod -a -G audio user
+
+# These do not seem to be needed for audio after all:
+#VOLUME /tmp/.X11-unix:/tmp/.X11-unix
+#VOLUME /dev/shm:/dev/shm
+#VOLUME /etc/machine-id:/etc/machine-id
+#VOLUME /run/user/$uid/pulse:/run/user/$uid/pulse
+#VOLUME /var/lib/dbus:/var/lib/dbus
+#VOLUME ~/.pulse:/home/user/.pulse
+
+## Download Filibuster
+RUN git clone https://gitlab.com/nlbdev/filibuster-brage.git
+RUN cd filibuster-brage && git fetch -a && git checkout c696688c57ad0862ae0fb4db8cb274f8831a2d07
+
+## Make changes to Filibuster so that it runs properly
+RUN cp filibuster-brage/mari_config.tcl filibuster-brage/user_config.tcl
+RUN cp filibuster-brage/Preproc/mari_config.pl filibuster-brage/Preproc/user_config.pl
+RUN mv filibuster-brage/Preproc/lang/nob/Tagger/NLBtag filibuster-brage/Preproc/lang/nob/Tagger/NLBTag
+RUN find filibuster-brage -type f | grep -v " " | grep "\.\(tcl\|pl\)$" | xargs sed -i 's/n151007/n160614/g'
+RUN find filibuster-brage -type f | grep -v " " | grep "\.\(tcl\|pl\)$" | xargs sed -i 's/[A-Za-z]:\/.*filibuster[^\/]*\//\/opt\/filibuster-brage\//g'
+RUN find filibuster-brage -type f | grep -v " " | grep "\.\(tcl\|pl\)$" | xargs sed -i 's/Tagger\/NLBtag/Tagger\/NLBTag/g'
+RUN find filibuster-brage -type f | grep -v " " | grep "\.tcl$" | xargs sed -i 's/package require -exact/package require/g' # dont require exact package versions
+RUN sed -i 's/package require sound.*/load snack\/64-bit\/libsound.so/g' filibuster-brage/narraFil2.tcl
+RUN sed -i 's/\(puts stdout \[string length \[soundObject data -fileformat wav\]\]\)/#\1/' filibuster-brage/narraFil2.tcl
+RUN sed -i 's/#set auto_path "C:\/wavesurfer\/src \$auto_path"/lappend auto_path \/usr\/share\/tcltk\/wavesurfer\//' filibuster-brage/filibuster.tcl
+RUN mkdir -p filibuster-brage/Preproc/lang/nob/DB
+RUN chmod +x filibuster-brage/filibuster.tcl
+
+## Build lexicons
+RUN cd filibuster-brage/Preproc \
+    && sed -i 's/reload_lexica.*/reload_lexica = "1";/' user_config.pl \
+    && USER=user perl nob_preproc.pl \
+    && sed -i 's/reload_lexica.*/reload_lexica = "0";/' user_config.pl
+
+## Set ownership to user
+RUN chown -R ${user_name}:${user_name} filibuster-brage
+RUN chmod 777 filibuster-brage
+
+## Install as easy-to-use command invokable from anywhere
+COPY resources/filibuster/filibuster filibuster-brage/filibuster
+ENV PATH $PATH:/opt/filibuster-brage/
 
 USER ${user_name}
 WORKDIR /home/${user_name}/
