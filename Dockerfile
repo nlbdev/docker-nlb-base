@@ -117,14 +117,6 @@ RUN apt-get update && apt-get install -y tcl8.6 tk8.6 tcllib tk-tile tcl-snack w
 RUN ln --symbolic /usr/bin/tclsh8.6 /usr/bin/tclsh8.4 # tclsh8.4 is hardcoded in filibuster
 RUN usermod -a -G audio user
 
-# These do not seem to be needed for audio after all:
-#VOLUME /tmp/.X11-unix:/tmp/.X11-unix
-#VOLUME /dev/shm:/dev/shm
-#VOLUME /etc/machine-id:/etc/machine-id
-#VOLUME /run/user/$uid/pulse:/run/user/$uid/pulse
-#VOLUME /var/lib/dbus:/var/lib/dbus
-#VOLUME ~/.pulse:/home/user/.pulse
-
 ## Download Filibuster
 RUN git clone https://gitlab.com/nlbdev/filibuster-brage.git
 RUN cd filibuster-brage && git fetch -a && git checkout c696688c57ad0862ae0fb4db8cb274f8831a2d07
